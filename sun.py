@@ -11,9 +11,9 @@ from PIL import Image
 class SUN:
     def __init__(self, meta_file='./Metadata/SUNRGBDMeta.mat'):
         if not meta_file == None:
-            print('loading annotations into memory...')
+            print('loading metadata into memory...')
             tic = time.time()
-            self.dataSet = sio.loadmat(meta_file)['SUNRGBDMeta']
+            self.dataSet = sio.loadmat(meta_file)['SUNRGBDMeta'].ravel()
             print('Done (t={:0.2f}s)'.format(time.time() - tic))
 
     def load3dPoints(self, id):
@@ -22,7 +22,7 @@ class SUN:
         :param id: pos in metadata
         :return: 3d points
         """
-        data = self.dataSet[0, id]
+        data = self.dataSet[id]
         depthVis = Image.open(data['depthpath'][0], 'r')
         depthVisData = np.asarray(depthVis, np.uint16)
         depthInpaint = np.bitwise_or(np.right_shift(depthVisData, 3), np.left_shift(depthVisData, 16 - 3))
@@ -49,7 +49,7 @@ class SUN:
         return rgb, points3d, points3dMatrix
 
     def visPointCloud(self, id):
-        data = self.dataSet[0, id]
+        data = self.dataSet[id]
         rgb, points3d, depth = self.load3dPoints(id)
         fig = plt.figure()
         ax = fig.add_subplot(111, projection='3d')
